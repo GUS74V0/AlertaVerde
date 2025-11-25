@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AlertaVerde - Monitoramento Colaborativo</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Cena 1: Mapa Principal -->
+    <div id="map"></div>
+
+    <!-- Header Flutuante -->
+    <header class="floating-header">
+        <div class="logo">
+            <i class="fa-solid fa-leaf"></i> AlertaVerde
+        </div>
+        <div class="profile-icon">
+            <i class="fa-solid fa-circle-user"></i>
+        </div>
+    </header>
+
+    <!-- Botão de Ação Flutuante (FAB) -->
+    <button id="btn-report" class="fab-report">
+        <i class="fa-solid fa-bullhorn"></i> REPORTAR
+    </button>
+
+    <!-- Botões Secundários (Geo e Hub) -->
+    <div class="secondary-controls">
+        <button id="btn-geo" class="secondary-btn" title="Minha Localização">
+            <i class="fa-solid fa-crosshairs"></i>
+        </button>
+        <button id="btn-hub" class="secondary-btn" title="O que fazer?">
+            <i class="fa-solid fa-book-medical"></i>
+        </button>
+    </div>
+
+    <!-- Cena 2: Modal de Reporte (Oculto) -->
+    <div id="modal-report" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Novo Alerta</h2>
+                <button id="btn-close-modal" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form id="form-report">
+                <div class="form-group">
+                    <label>O que está acontecendo?</label>
+                    <div class="report-types">
+                        <button type="button" class="type-btn" data-type="fire">
+                            <i class="fa-solid fa-fire"></i> Queimada
+                        </button>
+                        <button type="button" class="type-btn" data-type="flood">
+                            <i class="fa-solid fa-water"></i> Enchente
+                        </button>
+                        <button type="button" class="type-btn" data-type="landslide">
+                            <i class="fa-solid fa-hill-rockslide"></i> Deslizamento
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="photo-upload" class="upload-btn">
+                        <i class="fa-solid fa-camera"></i> Anexar Foto
+                    </label>
+                    <input type="file" id="photo-upload" accept="image/*" hidden>
+                    <span id="file-name">Nenhum arquivo selecionado</span>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    ENVIAR ALERTA
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Cena 3: Hub de Ação (Oculto) -->
+    <div id="modal-hub" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>O que fazer?</h2>
+                <button id="btn-close-hub" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="hub-content">
+                <div class="hub-card emergency">
+                    <i class="fa-solid fa-phone-volume"></i>
+                    <div class="card-text" style="width: 100%;">
+                        <h3>Emergência</h3>
+                        <div class="emergency-item">
+                            <span>Bombeiros: <strong>193</strong></span>
+                            <button class="copy-btn-mini" data-number="193" title="Copiar 193">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="emergency-item">
+                            <span>Defesa Civil: <strong>199</strong></span>
+                            <button class="copy-btn-mini" data-number="199" title="Copiar 199">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hub-card fire">
+                    <i class="fa-solid fa-fire"></i>
+                    <div>
+                        <h3>Incêndio / Fumaça</h3>
+                        <ul class="tips-list">
+                            <li>Feche janelas e portas para bloquear faíscas</li>
+                            <li>Cubra nariz e boca com pano úmido</li>
+                            <li>Afaste-se da direção do vento</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="hub-card flood">
+                    <i class="fa-solid fa-house-flood-water"></i>
+                    <div>
+                        <h3>Inundação</h3>
+                        <ul class="tips-list">
+                            <li>Desligue a chave geral de energia imediatamente</li>
+                            <li>Vá para lugares altos e leve documentos</li>
+                            <li>Evite contato com a água (risco de doença)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="hub-card landslide">
+                    <i class="fa-solid fa-hill-rockslide"></i>
+                    <div>
+                        <h3>Deslizamento</h3>
+                        <ul class="tips-list">
+                            <li>Observe rachaduras em paredes ou no solo</li>
+                            <li>Se ouvir estalos ou árvores caindo, corra</li>
+                            <li>Saia de casa imediatamente, não espere</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>

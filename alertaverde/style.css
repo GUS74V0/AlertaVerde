@@ -1,0 +1,413 @@
+:root {
+  --primary-green: #2e7d32;
+  --urgent-red: #d32f2f;
+  --text-dark: #333;
+  --text-light: #fff;
+  --bg-light: #f5f5f5;
+  --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.1);
+  --shadow-strong: 0 4px 15px rgba(211, 47, 47, 0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  overflow: hidden; /* Previne scroll na tela principal */
+  background-color: var(--bg-light);
+}
+
+/* Cena 1: Mapa Principal */
+#map {
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+/* Header Flutuante */
+.floating-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none; /* Permite clicar no mapa através do gradiente */
+}
+
+.floating-header > * {
+  pointer-events: auto; /* Reativa cliques nos ícones */
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: var(--primary-green);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-icon {
+  font-size: 1.5rem;
+  color: var(--primary-green);
+  background: rgba(255, 255, 255, 0.9);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+}
+
+/* Botão de Ação Flutuante (FAB) */
+.fab-report {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background-color: var(--urgent-red);
+  color: var(--text-light);
+  border: none;
+  padding: 16px 32px;
+  border-radius: 50px;
+  font-weight: bold;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-strong);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  /* Touch target optimization */
+  min-height: 48px;
+}
+
+.fab-report:active {
+  transform: translateX(-50%) scale(0.95);
+  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.4);
+}
+
+/* Botões Secundários */
+.secondary-controls {
+  position: absolute;
+  bottom: 120px; /* Acima do FAB */
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 1000;
+}
+
+.secondary-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: white;
+  border: none;
+  color: var(--text-dark);
+  box-shadow: var(--shadow-soft);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.secondary-btn:active {
+  transform: scale(0.9);
+}
+
+#btn-geo {
+  color: var(--primary-green);
+}
+
+#btn-hub {
+  color: #1976d2; /* Azul informativo */
+}
+
+/* Cena 2: Modal de Reporte (Drawer) */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  border-radius: 24px 24px 0 0;
+  padding: 24px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Curva suave */
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal.active .modal-content {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.modal-header h2 {
+  color: var(--text-dark);
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #999;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+/* Botões de Tipo */
+.report-types {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.type-btn {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid #eee;
+  border-radius: 16px;
+  background: white;
+  font-size: 1rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* Touch target */
+  min-height: 56px;
+}
+
+.type-btn i {
+  font-size: 1.2rem;
+}
+
+.type-btn:hover {
+  background-color: #f9f9f9;
+}
+
+.type-btn.selected {
+  border-color: var(--primary-green);
+  background-color: #e8f5e9;
+  color: var(--primary-green);
+  font-weight: 600;
+}
+
+/* Botão de Upload */
+.upload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  border: 2px dashed #ccc;
+  border-radius: 16px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-btn:hover {
+  border-color: var(--primary-green);
+  color: var(--primary-green);
+}
+
+/* Botão de Enviar */
+.btn-submit {
+  width: 100%;
+  padding: 18px;
+  background-color: var(--primary-green);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+  transition: background-color 0.2s;
+}
+
+.btn-submit:active {
+  background-color: #1b5e20;
+}
+
+/* Utilitário */
+.hidden {
+  /* A classe hidden é controlada via opacity/pointer-events no .modal, 
+       mas mantemos aqui caso precise de display: none explícito em algum momento */
+  /* display: none; */
+}
+
+/* Hub de Ação Styles */
+.hub-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.hub-card {
+  padding: 16px;
+  border-radius: 16px;
+  background: #f9f9f9;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.hub-card i {
+  font-size: 1.5rem;
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.hub-card.emergency {
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+}
+
+.hub-card.emergency i {
+  background: #ffcdd2;
+  color: #d32f2f;
+}
+
+.hub-card.guide {
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
+}
+
+.hub-card.guide i {
+  background: #bbdefb;
+  color: #1976d2;
+}
+
+/* Novos Temas de Cards */
+.hub-card.fire {
+  background: #ffebee;
+  border: 1px solid #ffcdd2;
+}
+
+.hub-card.fire i {
+  background: #ffcdd2;
+  color: #d32f2f;
+}
+
+.hub-card.flood {
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
+}
+
+.hub-card.flood i {
+  background: #bbdefb;
+  color: #1976d2;
+}
+
+.hub-card.landslide {
+  background: #efebe9;
+  border: 1px solid #d7ccc8;
+}
+
+.hub-card.landslide i {
+  background: #d7ccc8;
+  color: #795548; /* Marrom */
+}
+
+/* Lista de Dicas */
+.tips-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 8px;
+}
+
+.tips-list li {
+  position: relative;
+  padding-left: 16px;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.3;
+}
+
+.tips-list li::before {
+  content: "•";
+  position: absolute;
+}
+
+.hub-card p {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Popup Image */
+.popup-image {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
